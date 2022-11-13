@@ -1,7 +1,7 @@
 {
     "tasks" : [
-        { "id": "1", "name": "Eat" },
-        { "id": "2", "name": "Code" },
-        { "id": "3", "name": "Sleep" }
+        { "id": "1", "name": "Eat", "done":false },
+        { "id": "2", "name": "Code", "done":false },
+        { "id": "3", "name": "Sleep", "done":false}
     ]
 }

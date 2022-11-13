@@ -75,8 +75,13 @@ li {
   padding: 1em;
 }
 
+.items {
+  height: calc(100vh/2);
+  overflow-y: auto;
+}
+
 .card.task {
-  cursor: move;
+  // cursor: move;
   padding: $half;
   width: 100%;
   display: flex;
@@ -84,28 +89,39 @@ li {
   justify-content: space-between;
 }
 
-.pencil-icon {
+.icons {
+  z-index: 999;
+}
+
+.pen-icon, .trash-icon {
   cursor: $ptr;
   color: gray !important;
 }
 
-.pencil-icon:hover {
+.pen-icon:hover, .save-icon:hover {
   color: $yellow;
   transition: 0.5s;
 }
 
-.trash-icon {
+.trash-icon:hover {
   cursor: $ptr;
   color: red !important;
+  transition: 0.5s;
 }
 
-.card-body {
+.others {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.progress-txt {
+  padding: $half;
+  font-weight: 700;
 }
 
 .add-btn {
-  align-self: flex-end;
+  // align-self: flex-end;
   text-decoration: none;
   color: $dark-gray;
   border: 1px solid $dark-gray;
@@ -116,12 +132,31 @@ li {
 .add-btn:hover {
   color: $yellow;
   border: 1px solid $yellow;
-  transition: 1s;
+  transition: 0.5s;
 }
 
+.save-btn {
+  background: white;
+}
+
+.save-btn:hover {
+  background-color: rgb(218, 218, 218);
+}
+
+.hide {
+  display: none !important;
+}
+
+.strike {
+  color: gray;
+}
 
 /* smaller screen sizes*/
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 768px) {
+  .items {
+    height: calc(80vh/2);
+  }
+
   .card {
     width: 100%;
   }
