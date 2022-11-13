@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { SortableList } from '@thaddeusjiang/react-sortable-list';
+import React, { useState, useRef  } from 'react';
 import list from './../data/tasks.json';
 
 /**
@@ -16,6 +15,8 @@ export default function Card() {
     const [editItem, setEditItem] = useState("");
     const [totalFinished, setTotalFinished] = useState(0);
     const [totalTasks, setTotalTasks] = useState(items.length);
+    const dragItem = useRef();
+    const dragOverItem = useRef();
 
     const addItem = () => {
         let id = generateId();
@@ -56,6 +57,7 @@ export default function Card() {
         if (window.confirm("Are you sure you want to delete this item?")) { 
             let tasks = items.filter(item => item.id !== id);
             setItems(tasks);
+            setTotalTasks(tasks.length);
         }        
     }
 
@@ -70,6 +72,26 @@ export default function Card() {
         setTotalFinished(ctr);
     }
 
+    const dragStart = (e, position) => {
+        dragItem.current = position;
+        console.log(e.target.innerHTML);
+    };
+
+    const dragEnter = (e, position) => {
+        dragOverItem.current = position;
+        console.log(e.target.innerHTML);
+    };
+
+    const drop = (e) => {
+        const copyListItems = [...items];
+        const dragItemContent = copyListItems[dragItem.current];
+        copyListItems.splice(dragItem.current, 1);
+        copyListItems.splice(dragOverItem.current, 0, dragItemContent);
+        dragItem.current = null;
+        dragOverItem.current = null;
+        setItems(copyListItems);
+    };
+
     return(
         <div className="card mx-auto">
           <div className="card-header">
@@ -81,8 +103,13 @@ export default function Card() {
                 <button className="add-btn btn" onClick={()=>addItem()}> ADD TASK ( + ) </button>
             </div>
             <div className="items">
-                {items.map(item => (
-                    <div className="card task" key={item.id}>
+                {items.map( (item, index) => (
+                    <div className="card task" 
+                    key={item.id} 
+                    onDragStart={(evt) => dragStart(evt, index)}
+                    onDragEnter={(e) => dragEnter(e, index)}
+                    onDragEnd={drop}
+                    draggable>
                         {editItem!==item.id &&
                         <div className="input-item my-2">
                             <input className="form-check-input mt-1" type="checkbox" 
