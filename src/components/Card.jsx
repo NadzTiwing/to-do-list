@@ -25,7 +25,7 @@ export default function Card() {
     const dragOverItem = useRef();
 
     /**
-     * add a new item and will be inserted in the first index the array
+     * add a new item and will be inserted in the first index of the array
      * increase the total number of tasks
      * call the editTask()
     */
@@ -118,7 +118,7 @@ export default function Card() {
      */
     const dragStart = (position) => {
         dragItem.current = position;
-    };
+    }
 
     /**
      * @param { number } position 
@@ -126,7 +126,7 @@ export default function Card() {
      */
     const dragEnter = (position) => {
         dragOverItem.current = position;
-    };
+    }
 
     /**
      * update the index positions of the rearranged items
@@ -140,7 +140,7 @@ export default function Card() {
         dragItem.current = null;
         dragOverItem.current = null;
         setItems(copyListItems);
-    };
+    }
 
     return(
         <div className="card mx-auto">
