@@ -2,22 +2,33 @@ import React, { useState, useRef  } from 'react';
 import list from './../data/tasks.json';
 
 /**
- * will be used to generate unique id for the added tasks
- * @returns id
+ * generate unique id for the added tasks
+ * @returns { string } id
  */
 function generateId() {
     return (Math.random() + 1).toString(36).substring(8); 
 }
 
 export default function Card() {
-    const [items, setItems] = useState(list.tasks);
-    const [isEditing, setEditing] = useState(false);
-    const [editItem, setEditItem] = useState("");
-    const [totalFinished, setTotalFinished] = useState(0);
-    const [totalTasks, setTotalTasks] = useState(items.length);
-    const dragItem = useRef();
+    /** 
+     * useState was used to update the value of the variables efficiently
+     * useRef was used to get the current item being dragged
+    */
+    const [items, setItems] = useState(list.tasks); //where I store the data
+    const [isEditing, setEditing] = useState(false); //determine if the user is editing an item
+    const [editItem, setEditItem] = useState(""); //indicates what item was being edited
+    const [totalFinished, setTotalFinished] = useState(0); //count the total number of tasks done
+    const [totalTasks, setTotalTasks] = useState(items.length); //count the total number of the tasks
+
+    //variables that will be used to get the item being dragged and dropped
+    const dragItem = useRef(); 
     const dragOverItem = useRef();
 
+    /**
+     * add a new item and will be inserted in the first index the array
+     * increase the total number of tasks
+     * call the editTask()
+    */
     const addItem = () => {
         let id = generateId();
         let newItem = {
@@ -32,11 +43,18 @@ export default function Card() {
         editTask(id);
     }
 
+    //indicate the user is editing an item and what item is being edited
     const editTask = (id) => {
         setEditing(!isEditing);
         setEditItem(id);
     }
 
+    /**
+     * @param { string } value 
+     * If the user enter nothing the user will be prompted
+     * else once the user saved the item
+     * reset the value of editItem and isEditing to indicate that the user is done editing
+    */
     const saveTask = (value) => {
         if(!value) {
             alert("Please enter something.");
@@ -46,6 +64,11 @@ export default function Card() {
         setEditItem("");
     }
 
+    /**
+     * @param { string } id 
+     * @param { string } value 
+     * update the name of the items being edited
+     */
     const handleChange = (id, value) => {
         setItems(items.map(item => {
             if(item.id === id) item.name = value;
@@ -53,14 +76,32 @@ export default function Card() {
         }));
     } 
 
+
+    /**
+     * @param { string } id
+     * asked the user if s/he's sure in removing the item
+     * if confirmed, remove selected item from the list
+     * count the total number of tasks and tasks done
+     */
     const deleteTask = (id) => {
         if (window.confirm("Are you sure you want to delete this item?")) { 
             let tasks = items.filter(item => item.id !== id);
             setItems(tasks);
+            
+            let ctr = 0;
+            tasks.map(item => {
+                if(item.done) ctr++;
+            });
+            setTotalFinished(ctr);
             setTotalTasks(tasks.length);
         }        
     }
 
+    /**
+     * @param { string } id 
+     * when user clicks the check box, it will update the status of the item
+     * increase the total tasks finished if checked
+     */
     const onCheck = (id) => {
         let ctr = 0;
         setItems(items.map(item => {
@@ -68,21 +109,30 @@ export default function Card() {
             if(item.done) ctr++;
             return item;
         }));
-
         setTotalFinished(ctr);
     }
 
-    const dragStart = (e, position) => {
+    /**
+     * @param { number } position 
+     * get the current index position of that item being dragged
+     */
+    const dragStart = (position) => {
         dragItem.current = position;
-        console.log(e.target.innerHTML);
     };
 
-    const dragEnter = (e, position) => {
+    /**
+     * @param { number } position 
+     * get the index position of the replaced item after dropping the dragged item
+     */
+    const dragEnter = (position) => {
         dragOverItem.current = position;
-        console.log(e.target.innerHTML);
     };
 
-    const drop = (e) => {
+    /**
+     * update the index positions of the rearranged items
+     * reset the value of the dragItem and dragOverItem
+     */
+    const drop = () => {
         const copyListItems = [...items];
         const dragItemContent = copyListItems[dragItem.current];
         copyListItems.splice(dragItem.current, 1);
@@ -99,16 +149,16 @@ export default function Card() {
           </div>
           <div className="card-body">
             <div className="others">
-                <p className="progress-txt">{totalFinished==items.length ? "Awesome, you complete all of your tasks!" : `You finished ${totalFinished} out of ${totalTasks} tasks`}</p>
+                <p className="progress-txt">{totalFinished == items.length ? "Awesome, you complete all of your tasks!" : `You finished ${totalFinished} out of ${totalTasks} tasks`}</p>
                 <button className="add-btn btn" onClick={()=>addItem()}> ADD TASK ( + ) </button>
             </div>
             <div className="items">
                 {items.map( (item, index) => (
                     <div className="card task" 
                     key={item.id} 
-                    onDragStart={(evt) => dragStart(evt, index)}
-                    onDragEnter={(e) => dragEnter(e, index)}
-                    onDragEnd={drop}
+                    onDragStart={() => dragStart(index)}
+                    onDragEnter={() => dragEnter(index)}
+                    onDragEnd={()=> drop()}
                     draggable>
                         {editItem!==item.id &&
                         <div className="input-item my-2">

@@ -7,12 +7,8 @@ $size-2: 2em;
 $dark-gray: #121212;
 $yellow: rgb(255, 255, 53) !important;
 
-/* fonts */
-$lato: 'Lato', sans-serif !important;
-
 /* others */
 $ptr: pointer !important;
-$border: 5px !important;
 
 .App{
   width: 100%;
@@ -20,11 +16,6 @@ $border: 5px !important;
   background-image: url("./../public/img/forest.jpg"), linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5));
   background-size: cover;
   background-blend-mode: overlay;
-}
-
-li {
-  font-family: $lato !important;
-  font-size: 300;
 }
 
 .title {
@@ -45,7 +36,7 @@ li {
 .card {
   width: 50%;
   box-shadow: 0 0 1rem 0 rgba(0, 0, 0, .2); 
-  border-radius: $border;
+  border-radius: 5px !important;
   position: relative;
   z-index: 1;
   background: inherit;
@@ -121,7 +112,6 @@ li {
 }
 
 .add-btn {
-  // align-self: flex-end;
   text-decoration: none;
   color: $dark-gray;
   border: 1px solid $dark-gray;
@@ -151,7 +141,7 @@ li {
   color: gray;
 }
 
-/* smaller screen sizes*/
+/* tablet and phone screen sizes*/
 @media only screen and (max-width: 768px) {
   .items {
     height: calc(80vh/2);
