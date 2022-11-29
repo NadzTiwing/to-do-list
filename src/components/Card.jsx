@@ -1,13 +1,5 @@
-import React, { useState, useRef  } from 'react';
+import React, { useState, useRef, useCallback, useMemo, useEffect, useLayoutEffect  } from 'react';
 import list from './../data/tasks.json';
-
-/**
- * generate unique id for the added tasks
- * @returns { string } id
- */
-function generateId() {
-    return (Math.random() + 1).toString(36).substring(8); 
-}
 
 export default function Card() {
     /** 
@@ -15,8 +7,8 @@ export default function Card() {
      * useRef was used to get the current item being dragged
     */
     const [items, setItems] = useState(list.tasks); //where I store the data
-    const [isEditing, setEditing] = useState(false); //determine if the user is editing an item
     const [editItem, setEditItem] = useState(""); //indicates what item was being edited
+    const isEditing = useRef(false);
     const [totalFinished, setTotalFinished] = useState(0); //count the total number of tasks done
     const [totalTasks, setTotalTasks] = useState(items.length); //count the total number of the tasks
 
@@ -30,23 +22,22 @@ export default function Card() {
      * call the editTask()
     */
     const addItem = () => {
-        let id = generateId();
+        let id = (Math.random() + 1).toString(36).substring(8);
         let newItem = {
             id: id,
             name: "",
             done: false
         };
-        items.unshift(newItem);
-        setItems(items => [...items]);
-        setTotalTasks(items.length);
+        setItems(items => [newItem, ...items]);
+        setTotalTasks(totalTasks => totalTasks = items.length);
 
         editTask(id);
     }
 
     //indicate the user is editing an item and what item is being edited
     const editTask = (id) => {
-        setEditing(!isEditing);
-        setEditItem(id);
+        setEditItem(editItem => editItem = id);
+        isEditing.current= !isEditing.current;
     }
 
     /**
@@ -60,9 +51,10 @@ export default function Card() {
             alert("Please enter something.");
             return;
         }
-        setEditing(!isEditing);
+        isEditing.current = !isEditing.current;
         setEditItem("");
     }
+    
 
     /**
      * @param { string } id 
@@ -70,12 +62,11 @@ export default function Card() {
      * update the name of the items being edited
      */
     const handleChange = (id, value) => {
-        setItems(items.map(item => {
+        setItems(items => items.map(item => {
             if(item.id === id) item.name = value;
             return item;
         }));
-    } 
-
+    }
 
     /**
      * @param { string } id
@@ -142,6 +133,22 @@ export default function Card() {
         setItems(copyListItems);
     }
 
+    /*
+    * 2. What makes you decide to go with a single Card component? Because the features implemented is simple
+    * 3. What is the advantage if any and: makes the code simpler and readable
+    * 4. Disadvantage if any? none
+    */
+
+    /*
+    * 5. How can you improve the component rendering?
+    * 6. Can you describe what is happening behind while you're typing on
+    *   the input element? It's calling the function everytime there's a change in input
+    * 7. If there a way to optimize your application how would you do it?
+    *   * if you feel like changing/modifying the code will best illustrate
+    *   * it you can do so.
+    * 
+    * I've decided to remove the generateId() to avoid re-render. I set the value of the id variable when user add an item 
+    */
     return(
         <div className="card mx-auto">
           <div className="card-header">
@@ -154,17 +161,18 @@ export default function Card() {
             </div>
             <div className="items">
                 {items.map( (item, index) => (
-                    <div className="card task" 
+                    <div className="card task"
+                    id={`item-`+item.id} 
                     key={item.id} 
                     onDragStart={() => dragStart(index)}
                     onDragEnter={() => dragEnter(index)}
                     onDragEnd={()=> drop()}
                     draggable>
-                        {editItem!==item.id &&
+                        {editItem !== item.id &&
                         <div className="input-item my-2">
                             <input className="form-check-input mt-1" type="checkbox" 
                             value={item.done} 
-                            aria-label="Checkbox for following text input" 
+                            aria-label="Checkbox for following text input"
                             disabled={isEditing} 
                             checked={item.done} 
                             onChange={()=>onCheck(item.id)}/>
@@ -172,11 +180,15 @@ export default function Card() {
                         </div>
                         }
                         
-                        <input type="text" className={editItem===item.id ? `form-control w-75` : `hide`} value={item.name} onChange={(evt)=>handleChange(item.id, evt.target.value)}/>
+                        <input type="text" className={editItem === item.id ? `form-control w-50` : `hide`} 
+                        value={item.name} 
+                        // onChange={(evt)=>handleChange(item.id, evt.target.value)}
+                        onChange={(evt)=>handleChange(item.id, evt.target.value)}
+                        />
                         <div className="icons">
-                            <button className={editItem===item.id ? `btn btn-sm save-btn` : `hide`} onClick={()=>saveTask(item.name)}>SAVE</button>
-                            <button className={isEditing ? `hide` : `btn btn-link`} onClick={()=>editTask(item.id)}><i className="pen-icon bi bi-pencil-fill"></i></button>
-                            <button className={isEditing ? `hide` : `btn btn-link`} onClick={()=>deleteTask(item.id)}><i className="trash-icon bi bi-x-lg"></i></button>
+                            <button className={editItem === item.id ? `btn btn-sm save-btn` : `hide`} onClick={()=>saveTask(item.name)}>SAVE</button>
+                            <button className={item.isEditing ? `hide` : `btn btn-link`} onClick={()=>editTask(item.id)}><i className="pen-icon bi bi-pencil-fill"></i></button>
+                            <button className={item.isEditing ? `hide` : `btn btn-link`} onClick={()=>deleteTask(item.id)}><i className="trash-icon bi bi-x-lg"></i></button>
                         </div>
                     </div>
                 ))}
